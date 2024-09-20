@@ -12,7 +12,9 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
-
-Route::get('/', function () {
-    return view('complaint-registration');
-});
+//
+//Route::get('/', function () {
+//    return view('complaint-registration');
+//});
+Route::get('/', [\App\Http\Controllers\Frontend\ComplaintController::class, 'index'])->name('complaint.index');
+Route::post('/complaint/store', [\App\Http\Controllers\Frontend\ComplaintController::class, 'store'])->name('complaint.store');

@@ -127,6 +127,7 @@
     </style>
 </head>
 <body>
+
 <div class="form-container">
     <h1>Complaint Registration Form</h1>
     <div class="progress-bar">
@@ -135,7 +136,8 @@
         <div class="progress-step">Complaint Details</div>
         <div class="progress-step">Review & Submit</div>
     </div>
-    <form id="complaintForm">
+    <form id="complaintForm" method="POST" >
+        @csrf
         <div class="step active" id="step1">
             <h2>Personal Information</h2>
             <label for="name" class="required">Full Name:</label>
@@ -207,7 +209,7 @@
             <div class="error-message" style="display:none;">Please agree to the terms before submitting.</div>
             <div class="buttons">
                 <button type="button" id="prev4">Previous</button>
-                <button type="submit">Submit Complaint</button>
+                <button type="submit"  id="submitComplaint">Submit Complaint</button>
             </div>
         </div>
     </form>
@@ -324,6 +326,36 @@
             thankYouMessage.style.display = 'block';
         }
     });
+
+    document.getElementById('submitComplaint').addEventListener('click', function () {
+        const form = document.getElementById('complaintForm');
+        const formData = new FormData(form);
+
+        fetch('{{ route('complaint.store') }}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Hide form and show the thank you message
+                    form.style.display = 'none';
+                    document.getElementById('thankYouMessage').style.display = 'block';
+                } else {
+                    // Handle validation errors
+                    console.error('Validation errors:', data.errors);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    });
+
+
+
 </script>
 </body>
 </html>
