@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Complaint Registration Form</title>
     <style>
         body {
@@ -136,7 +137,7 @@
         <div class="progress-step">Complaint Details</div>
         <div class="progress-step">Review & Submit</div>
     </div>
-    <form id="complaintForm" method="POST" >
+    <form id="complaintForm" method="POST" action="{{route('complaint.store')}}" >
         @csrf
         <div class="step active" id="step1">
             <h2>Personal Information</h2>
@@ -156,14 +157,18 @@
         <div class="step" id="step2">
             <h2>Email Verification</h2>
             <p>A verification code has been sent to your email. Please enter it below:</p>
-            <p>(Demo code: 1111)</p>
+
+            <div id="verificationFeedback" class="alert" style="display: none;"></div>
+
             <input type="text" id="verificationCode" name="verificationCode" required>
             <div class="error-message">Please enter the verification code.</div>
+
             <div class="buttons">
                 <button type="button" id="prev2">Previous</button>
                 <button type="button" id="verifyCode">Verify Code</button>
             </div>
         </div>
+
 
         <div class="step" id="step3">
             <h2>Complaint Details</h2>
@@ -177,8 +182,8 @@
             </select>
             <div class="error-message">Please select a department.</div>
 
-            <label for="complaintType" class="required">Complaint Type:</label>
-            <select id="complaintType" name="complaintType" required>
+            <label for="complaint_type" class="required">Complaint Type:</label>
+            <select id="complaint_type" name="complaint_type" required>
                 <option value="">Select complaint type</option>
                 <option value="service">Service Related</option>
                 <option value="academic">Academic Issue</option>
@@ -217,6 +222,7 @@
         <h2>Thank You for Your Submission</h2>
         <p>Your complaint has been successfully registered. You will receive a confirmation email shortly with further details about the resolution process.</p>
     </div>
+
 </div>
 
 <script>
@@ -226,7 +232,7 @@
     const nextButtons = document.querySelectorAll('[id^="next"]');
     const prevButtons = document.querySelectorAll('[id^="prev"]');
     const thankYouMessage = document.getElementById('thankYouMessage');
-    const verifyCodeButton = document.getElementById('verifyCode');
+    // const verifyCodeButton = document.getElementById('verifyCode');
 
     let currentStep = 0;
     const demoVerificationCode = '1111';
@@ -249,13 +255,14 @@
         let reviewHTML = '<h3>Please review your complaint details:</h3>';
 
         for (let [key, value] of formData.entries()) {
-            if (key !== 'agreement' && key !== 'verificationCode') {
+            if (key !== 'agreement' && key !== 'verificationCode' && key !== '_token') {
                 reviewHTML += `<p><strong>${key.charAt(0).toUpperCase() + key.slice(1)}:</strong> ${value}</p>`;
             }
         }
 
         reviewContent.innerHTML = reviewHTML;
     }
+
 
     function validateStep(stepIndex) {
         const currentStepElement = steps[stepIndex];
@@ -282,16 +289,16 @@
         });
     }
 
-    verifyCodeButton.addEventListener('click', () => {
-        const enteredCode = document.getElementById('verificationCode').value;
-        if (enteredCode === demoVerificationCode) {
-            alert('Email verified successfully!');
-            currentStep++;
-            showStep(currentStep);
-        } else {
-            alert('Invalid verification code. Please try again.');
-        }
-    });
+    // verifyCodeButton.addEventListener('click', () => {
+    //     const enteredCode = document.getElementById('verificationCode').value;
+    //     if (enteredCode === demoVerificationCode) {
+    //         alert('Email verified successfully!');
+    //         currentStep++;
+    //         showStep(currentStep);
+    //     } else {
+    //         alert('Invalid verification code. Please try again.');
+    //     }
+    // });
 
     nextButtons.forEach((button, index) => {
         button.addEventListener('click', () => {
@@ -314,7 +321,7 @@
     });
 
     form.addEventListener('submit', (e) => {
-        e.preventDefault();
+        // e.preventDefault();
         if (validateStep(currentStep)) {
             const formData = new FormData(form);
             const data = Object.fromEntries(formData);
@@ -327,30 +334,104 @@
         }
     });
 
-    document.getElementById('submitComplaint').addEventListener('click', function () {
-        const form = document.getElementById('complaintForm');
-        const formData = new FormData(form);
+    form.addEventListener('submitComplaint', (e) => {
+        e.preventDefault(); // Prevent regular form submission
 
-        fetch('{{ route('complaint.store') }}', {
+        if (validateStep(currentStep)) {
+            const formData = new FormData(form);
+
+            fetch('{{ route('complaint.store') }}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Hide form and show the thank you message
+                        form.style.display = 'none';
+                        document.getElementById('thankYouMessage').style.display = 'block';
+                    } else {
+                        // Handle validation errors
+                        console.error('Validation errors:', data.errors);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+
+    });
+    document.getElementById('next1').addEventListener('click', function () {
+        const name = document.getElementById('name').value;
+        const email = document.getElementById('email').value;
+        // Validate that the name and email fields are filled
+        if (!name || !email) {
+            alert('Please enter your name and email.');
+            return;
+        }
+
+        // Send the name and email to the server to generate and send the verification code
+        fetch('{{ route('complaint.sendVerificationCode') }}', {
             method: 'POST',
-            body: formData,
             headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            }
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                name: name,
+                email: email
+            })
         })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Hide form and show the thank you message
-                    form.style.display = 'none';
-                    document.getElementById('thankYouMessage').style.display = 'block';
+                    // If the email is sent successfully, proceed to the next step
+
+                    showStep(currentStep);
                 } else {
-                    // Handle validation errors
-                    console.error('Validation errors:', data.errors);
+                    // If there was an error, show the error message
+                    alert('There was an error sending the verification code. Please try again.');
                 }
             })
             .catch(error => {
-                console.error('Error:', error);
+                console.error('Error sending verification code:', error);
+                alert('An error occurred while sending the verification code. Please try again.');
+            });
+    });
+    document.getElementById('verifyCode').addEventListener('click', function () {
+        const enteredCode = document.getElementById('verificationCode').value;
+
+        if (!enteredCode) {
+            alert('Please enter the verification code.');
+            return;
+        }
+
+        // Send the verification code to the server via AJAX
+        fetch('{{ route('complaint.verifyCode') }}', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                verification_code: enteredCode // Send the entered code to the server
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Move to the next step after successful verification
+                    alert("Verification Successfully ")
+                    currentStep++;
+                    showStep(currentStep); // Move to complaint details step
+                }
+            })
+            .catch(error => {
+                console.error('Error during verification:', error);
+                alert('An error occurred during verification. Please try again.');
             });
     });
 
