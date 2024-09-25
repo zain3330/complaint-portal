@@ -45,14 +45,10 @@
                                             <td>{{ $complaint->complaint_type }}</td>
                                             <td>{{ Str::limit($complaint->details, 50) }}</td>
                                             <td>
-                                                    <a href="" class="btn btn-warning btn-sm">Edit</a>
+                                                <a href="{{ route('complaint.view', $complaint->id) }}" class="btn btn-primary btn-sm">View</a>
 
 
-                                                    <form action="" method="POST" style="display:inline;">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                                                    </form>
+
 
                                             </td>
                                         </tr>

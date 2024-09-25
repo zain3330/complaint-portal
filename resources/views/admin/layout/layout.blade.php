@@ -5,6 +5,20 @@
         .dataTables_wrapper {
             min-height: 400px; /* Adjust the min-height as needed */
         }
+
+             /* Change the selected text color of the multi-select */
+        /* #department_id option:checked {*/
+        /*     color: blue; !* Change this to your desired color *!*/
+        /* }*/
+        /*.select2-selection__choice {*/
+        /*    color: white !important; !* Change to your desired color *!*/
+        /*    background-color: #0074f0!important; !* Optional: Change background color if needed *!*/
+        /*}*/
+        /*.select2-selection select2-selection--multiple {*/
+        /*    color: blue !important; !* Change to your desired color *!*/
+        /*}*/
+
+
     </style>
 
     <meta charset="utf-8">
@@ -26,6 +40,8 @@
     <link rel="stylesheet" href="{{url('admin/plugins/datatables-buttons/css/buttons.bootstrap4.min.css')}}">
     <link rel="stylesheet" href="{{url('admin/plugins/select2/css/select2.min.css')}}">
     <link rel="stylesheet" href="{{url('admin/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css')}}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 @yield('css')
 
 </head>
@@ -92,6 +108,15 @@
 <script src="{{url('admin/plugins/datatables-buttons/js/buttons.colVis.min.js')}}"></script>
 <!-- Select2 JS -->
 <script src="{{url('admin/plugins/select2/js/select2.full.min.js')}}"></script>
+{{--<script>--}}
+{{--    $(document).ready(function() {--}}
+{{--        $('#department_id').select2({--}}
+{{--            placeholder: "Select Departments",--}}
+{{--            allowClear: true--}}
+{{--        });--}}
+{{--    });--}}
+{{--</script>--}}
+
 
 <!-- Initialize DataTables -->
 

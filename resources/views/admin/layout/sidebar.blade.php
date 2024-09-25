@@ -74,9 +74,38 @@
                         </p>
                     </a>
                 </li>
+                <!-- Roles -->
+                <li class="nav-item">
+                    <a href="{{ route('role.index') }}" class="nav-link">
+                        <i class="nav-icon fas fa-exclamation-circle"></i> <!-- Changed icon class here -->
+                        <p>
+                            Roles
+                            <i class="right fas"></i>
+                        </p>
+                    </a>
+                </li>
+                <!-- Department -->
+                <li class="nav-item">
+                    <a href="{{ route('department.index') }}" class="nav-link">
+                        <i class="nav-icon fas fa-exclamation-circle"></i> <!-- Changed icon class here -->
+                        <p>
+                            Departments
+                            <i class="right fas"></i>
+                        </p>
+                    </a>
+                </li>
+                <!-- users -->
+                <li class="nav-item">
+                    <a href="{{ route('users.index') }}" class="nav-link">
+                        <i class="nav-icon fas fa-exclamation-circle"></i> <!-- Changed icon class here -->
+                        <p>
+                            Users
+                            <i class="right fas"></i>
+                        </p>
+                    </a>
+                </li>
 
-
-{{--                <!-- Categories -->--}}
+                {{--                <!-- Categories -->--}}
 {{--                <li class="nav-item">--}}
 {{--                    <a href="#" class="nav-link">--}}
 {{--                        <i class="nav-icon fas fa-tags"></i>--}}
