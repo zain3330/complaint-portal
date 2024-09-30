@@ -39,7 +39,8 @@ Route::get('/complaints/filter', [\App\Http\Controllers\Admin\ComplaintControlle
 
 Route::post('/complaints-updateStatus', [\App\Http\Controllers\Admin\ComplaintController::class, 'updateStatus'])->name('complaints.updateStatus');
     Route::get('/complaints/get-users', [\App\Http\Controllers\Admin\ComplaintController::class, 'getUsers'])->name('complaints.getUsers');
-    Route::post('/complaints/forward', [\App\Http\Controllers\Admin\ComplaintController::class, 'forward'])->name('complaints.forward');
+    Route::post('/complaints/forward', [\App\Http\Controllers\Admin\ComplaintController::class, 'forwardComplaint'])->name('complaints.forward');
+
 
 //roles
 Route::resource('/role', \App\Http\Controllers\Admin\Role\RoleController::class);

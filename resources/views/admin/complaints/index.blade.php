@@ -31,6 +31,7 @@
                                                 <option value="">Select Complaint Status</option>
                                                 <option value="In Progress">In Progress</option>
                                                 <option value="Resolved">Resolved</option>
+                                                <option value="Resolved">Forwarded</option>
                                             </select>
                                         </div>
                                         <button type="submit" class="btn btn-primary">Filter</button>
@@ -63,6 +64,7 @@
                                             <td>
                                                 <a href="{{ route('complaint.view', $complaint->id) }}" class="btn btn-primary btn-sm">View</a>
                                                 <button class="btn btn-warning btn-sm change-status" data-id="{{ $complaint->id }}">Change Status</button>
+                                                <button class="btn btn-secondary btn-sm forward-complaint" data-id="{{ $complaint->id }}">Forward</button>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -114,6 +116,32 @@
                         </div>
 
                         <button type="submit" class="btn btn-primary">Save changes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    //forward complaint
+    <div class="modal fade" id="forwardModal" tabindex="-1" role="dialog" aria-labelledby="forwardModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="forwardModalLabel">Forward Complaint</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="forwardForm">
+                        @csrf
+                        <input type="hidden" name="complaint_id" value="{{ $complaint->id }}">
+                        <div class="form-group">
+                            <label for="resolver_id">Select User to Forward</label>
+                            <select id="resolver_id" name="resolver_id" class="form-control">
+                                <!-- Options will be filled by AJAX -->
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Forward</button>
                     </form>
                 </div>
             </div>
@@ -184,5 +212,61 @@
             });
 
         });
+        $('.forward-complaint').on('click', function() {
+            var complaintId = $(this).data('id');
+            $('#complaintId').val(complaintId);
+
+            // Fetch and populate user list via AJAX
+            $.ajax({
+                url: '{{ route("complaints.getUsers") }}', // Route to get the list of users
+                method: 'GET',
+                success: function(response) {
+                    if (response.success) {
+                        var users = response.users;
+                        var options = '';
+                        users.forEach(function(user) {
+                            options += '<option value="' + user.id + '">' + user.name + '</option>';
+                        });
+                        $('#resolver_id').html(options);
+                    }
+                    $('#forwardModal').modal('show');
+                }
+            });
+        });
+        // Forward request
+        $('#forwardForm').submit(function (e) {
+            e.preventDefault(); // Prevent default form submission
+
+            var formData = new FormData(this);
+
+            $.ajax({
+                url: "{{ route('complaints.forward') }}",
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    if (response.success) {
+                        alert(response.message); // Show success message
+                        $('#forwardModal').modal('hide'); // Hide the modal after successful forwarding
+                        // Optionally, you can reload the page or update the complaint status dynamically
+                    } else {
+                        alert(response.message); // Show error message
+                    }
+                },
+                error: function (xhr) {
+                    // Log the actual error response for debugging
+                    console.log(xhr.responseText);
+                    try {
+                        var jsonResponse = JSON.parse(xhr.responseText);
+                        alert(jsonResponse.message || 'An error occurred. Please try again.'); // Show specific error message
+                    } catch (e) {
+                        alert('An unexpected error occurred. Please try again.'); // Fallback for non-JSON errors
+                    }
+                }
+            });
+        });
+
+
     </script>
 @endsection
