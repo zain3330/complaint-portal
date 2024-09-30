@@ -35,7 +35,11 @@ Route::middleware(['isAuthenticated'])->group(function () {
 Route::get('/dashboard', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
 Route::get('/complaints', [\App\Http\Controllers\Admin\ComplaintController::class, 'index'])->name('complaints.index');
 Route::get('/complaint/{complaint}', [\App\Http\Controllers\Admin\ComplaintController::class, 'show'])->name('complaint.view');
+Route::get('/complaints/filter', [\App\Http\Controllers\Admin\ComplaintController::class, 'filterComplaints'])->name('complaints.filter');
 
+Route::post('/complaints-updateStatus', [\App\Http\Controllers\Admin\ComplaintController::class, 'updateStatus'])->name('complaints.updateStatus');
+    Route::get('/complaints/get-users', [\App\Http\Controllers\Admin\ComplaintController::class, 'getUsers'])->name('complaints.getUsers');
+    Route::post('/complaints/forward', [\App\Http\Controllers\Admin\ComplaintController::class, 'forward'])->name('complaints.forward');
 
 //roles
 Route::resource('/role', \App\Http\Controllers\Admin\Role\RoleController::class);
@@ -52,4 +56,6 @@ Route::get('/get-user', [\App\Http\Controllers\Admin\User\UserController::class,
 //logout
 
     Route::post('/logout', [\App\Http\Controllers\Admin\Auth\AuthController::class, 'logout'])->name('logout');
+
+
 });
