@@ -39,7 +39,7 @@ class ComplaintController extends Controller
             ]);
         }
 
-        // Check if the complaint is already forwarded and trying to forward again
+        // Check if complaint is already forwarded
         if ($complaint->status == 'Forwarded' && $request->status == 'Forwarded') {
             return response()->json([
                 'success' => false,
@@ -47,7 +47,7 @@ class ComplaintController extends Controller
             ]);
         }
 
-        // Check if the complaint is already in progress
+        // Check if complaint is already in progress
         if ($complaint->status == 'In Progress' && $request->status == 'In Progress') {
             return response()->json([
                 'success' => false,
@@ -55,11 +55,23 @@ class ComplaintController extends Controller
             ]);
         }
 
-        // Update the status and set resolved_by if resolved
         $complaint->status = $request->status;
 
         if ($request->status == 'Resolved') {
-            $complaint->resolved_by = auth()->id();  // Set the resolver ID to the current authenticated user
+            $complaint->resolved_by = auth()->id();
+
+            // Store comments if provided
+            if ($request->has('comments')) {
+                $complaint->comments = $request->comments;
+            }
+
+            // Handle attachment upload if provided
+            if ($request->hasFile('attachment')) {
+                $file = $request->file('attachment');
+                $filename = time() . '_' . $file->getClientOriginalName();
+                $file->move(public_path('attachments'), $filename);
+                $complaint->attachment = $filename;
+            }
         }
 
         $complaint->save();
@@ -73,11 +85,11 @@ class ComplaintController extends Controller
     }
 
 
+
     public function filterComplaints(Request $request)
     {
         $status = $request->get('status');
 
-        // Fetch complaints based on status
         if ($status) {
             $complaints = Complaint::where('status', $status)->get();
         } else {
