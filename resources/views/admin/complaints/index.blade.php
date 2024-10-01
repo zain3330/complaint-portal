@@ -25,19 +25,18 @@
                             <div class="card-body">
                                 <div class="d-flex  justify-content-between  align-items-center">
                                     <!-- Filter Form -->
-                                    <form method="GET" action="{{ route('complaints.filter') }}" class="form-inline">
+                                    <form method="GET" action="{{ route('complaints.index') }}" class="form-inline">
                                         <div class="form-group mr-2">
                                             <select name="status" id="status" class="form-control">
                                                 <option value="">Select Complaint Status</option>
                                                 <option value="In Progress">In Progress</option>
                                                 <option value="Resolved">Resolved</option>
-                                                <option value="Resolved">Forwarded</option>
+                                                <option value="Forwarded">Forwarded</option>
                                             </select>
                                         </div>
                                         <button type="submit" class="btn btn-primary">Filter</button>
                                     </form>
                                 </div>
-
                                 <table id="complaints-table" class="table table-bordered table-striped dataTable dtr-inline">
                                     <thead>
                                     <tr>
@@ -134,7 +133,7 @@
                 <div class="modal-body">
                     <form id="forwardForm">
                         @csrf
-                        <input type="hidden" name="complaint_id" value="{{ $complaint->id }}">
+                        <input type="hidden" id="forwardComplaintId" name="complaint_id">
                         <div class="form-group">
                             <label for="resolver_id">Select User to Forward</label>
                             <select id="resolver_id" name="resolver_id" class="form-control">
@@ -153,6 +152,11 @@
 @section('script')
     <script>
         $(document).ready(function() {
+            $('.forward-complaint').on('click', function() {
+                var complaintId = $(this).data('id'); // Get complaint ID from button's data-id attribute
+                $('#forwardComplaintId').val(complaintId); // Set the hidden input value in the modal
+                $('#forwardModal').modal('show'); // Open the modal
+            });
             $('#statusSelect').on('change', function() {
                 if ($(this).val() === 'Resolved') {
                     $('#commentsSection').show();    // Show comments section
@@ -247,9 +251,11 @@
                 contentType: false,
                 success: function (response) {
                     if (response.success) {
-                        alert(response.message); // Show success message
-                        $('#forwardModal').modal('hide'); // Hide the modal after successful forwarding
-                        // Optionally, you can reload the page or update the complaint status dynamically
+                        var complaintId = $('#forwardComplaintId').val();
+                        $('#status-' + complaintId).text('Forwarded');
+                        alert(response.message);
+                        $('#forwardModal').modal('hide');
+
                     } else {
                         alert(response.message); // Show error message
                     }

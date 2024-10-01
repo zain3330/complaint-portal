@@ -20,70 +20,60 @@
             <div class="container-fluid">
                 <!-- Info boxes -->
                 <div class="row">
-                    <!-- Total Jobs Posted -->
+                    <!-- Total Departments -->
                     <div class="col-12 col-sm-6 col-md-3">
                         <div class="info-box">
-                            <span class="info-box-icon bg-info elevation-1"><i class="fas fa-briefcase"></i></span>
-
+                            <span class="info-box-icon bg-info elevation-1"><i class="fas fa-building"></i></span>
                             <div class="info-box-content">
-                                <span class="info-box-text">Total Jobs Posted</span>
-                                <span class="info-box-number">
-{{--                            {{ $totalJobsPosted }}--}}
-                        </span>
+                                <span class="info-box-text">Total Departments</span>
+                                <span class="info-box-number">{{ $departments }}</span>
                             </div>
-                            <!-- /.info-box-content -->
                         </div>
-                        <!-- /.info-box -->
                     </div>
-                    <!-- /.col -->
 
-                    <!-- Total Applied Jobs -->
+                    <!-- Total Complaints -->
                     <div class="col-12 col-sm-6 col-md-3">
-                        <div class="info-box mb-3">
-                            <span class="info-box-icon bg-success elevation-1"><i class="fas fa-file-alt"></i></span>
-
+                        <div class="info-box">
+                            <span class="info-box-icon bg-info elevation-1"><i class="fas fa-exclamation-circle"></i></span>
                             <div class="info-box-content">
-                                <span class="info-box-text">Total Applied Jobs</span>
-{{--                                <span class="info-box-number">{{ $totalAppliedJobs }}</span>--}}
+                                <span class="info-box-text">Total Complaints</span>
+                                <span class="info-box-number">{{ $totalComplaints }}</span>
                             </div>
-                            <!-- /.info-box-content -->
                         </div>
-                        <!-- /.info-box -->
                     </div>
-                    <!-- /.col -->
 
-                    <!-- fix for small devices only -->
-                    <div class="clearfix hidden-md-up"></div>
-
-
-                    <!-- Total Categories -->
+                    <!-- In Process Complaints -->
                     <div class="col-12 col-sm-6 col-md-3">
-                        <div class="info-box mb-3">
-                            <span class="info-box-icon bg-danger elevation-1"><i class="fas fa-list"></i></span>
-
+                        <div class="info-box">
+                            <span class="info-box-icon bg-warning elevation-1"><i class="fas fa-spinner"></i></span>
                             <div class="info-box-content">
-                                <span class="info-box-text">Total Categories</span>
-{{--                                <span class="info-box-number">{{ $totalCategories }}</span>--}}
+                                <span class="info-box-text">In Process Complaints</span>
+                                <span class="info-box-number">{{ $inProcessComplaints }}</span>
                             </div>
-                            <!-- /.info-box-content -->
                         </div>
-                        <!-- /.info-box -->
                     </div>
-                    <!-- /.col -->
-                    <!-- Total Locations -->
+
+                    <!-- Resolved Complaints -->
                     <div class="col-12 col-sm-6 col-md-3">
-                        <div class="info-box mb-3">
-                            <span class="info-box-icon bg-warning elevation-1"><i class="fas fa-map-marker-alt"></i></span>
-
+                        <div class="info-box">
+                            <span class="info-box-icon bg-success elevation-1"><i class="fas fa-check-circle"></i></span>
                             <div class="info-box-content">
-                                <span class="info-box-text">Total Locations</span>
-{{--                                <span class="info-box-number">{{ $totalLocations }}</span>--}}
+                                <span class="info-box-text">Resolved Complaints</span>
+                                <span class="info-box-number">{{ $resolvedComplaints }}</span>
                             </div>
-                            <!-- /.info-box-content -->
                         </div>
-                        <!-- /.info-box -->
                     </div>
-                    <!-- /.col -->
+
+                    <!-- Forwarded Complaints -->
+                    <div class="col-12 col-sm-6 col-md-3">
+                        <div class="info-box">
+                            <span class="info-box-icon bg-primary elevation-1"><i class="fas fa-arrow-right"></i></span>
+                            <div class="info-box-content">
+                                <span class="info-box-text">Forwarded Complaints</span>
+                                <span class="info-box-number">{{ $forwardedComplaints }}</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <!-- /.row -->
             </div><!--/. container-fluid -->

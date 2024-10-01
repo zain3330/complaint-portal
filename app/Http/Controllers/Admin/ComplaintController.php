@@ -14,12 +14,20 @@ use Illuminate\Validation\ValidationException;
 
 class ComplaintController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $status = $request->get('status');
         $users = User::where('id', '!=', auth()->id())->get();
-        $complaints = Complaint::all();
-        return view('admin.complaints.index', compact('complaints','users'));
+
+        if ($status) {
+            $complaints = Complaint::where('status', $status)->get();
+        } else {
+            $complaints = Complaint::all();
+        }
+
+        return view('admin.complaints.index', compact('complaints', 'users'));
     }
+
     public function show(Complaint $complaint)
     {
         return view('admin.complaints.view', compact('complaint'));
@@ -102,18 +110,18 @@ class ComplaintController extends Controller
 
 
 
-    public function filterComplaints(Request $request)
-    {
-        $status = $request->get('status');
-
-        if ($status) {
-            $complaints = Complaint::where('status', $status)->get();
-        } else {
-            $complaints = Complaint::all();
-        }
-
-        return view('admin.complaints.index', compact('complaints'));
-    }
+//    public function filterComplaints(Request $request)
+//    {
+//        $status = $request->get('status');
+//
+//        if ($status) {
+//            $complaints = Complaint::where('status', $status)->get();
+//        } else {
+//            $complaints = Complaint::all();
+//        }
+//
+//        return view('admin.complaints.index', compact('complaints'));
+//    }
 
 
     public function getUsers()
