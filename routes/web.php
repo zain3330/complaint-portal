@@ -26,6 +26,7 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::get('/', [\App\Http\Controllers\Frontend\ComplaintController::class, 'index'])->name('complaint.index');
+Route::get('/complaint-register', [\App\Http\Controllers\Frontend\ComplaintController::class, 'register'])->name('complaint.register');
 Route::post('/complaint/store', [\App\Http\Controllers\Frontend\ComplaintController::class, 'store'])->name('complaint.store');
 Route::post('/complaint/send-verification-code', [\App\Http\Controllers\Frontend\ComplaintController::class, 'sendVerificationCode'])->name('complaint.sendVerificationCode');
 Route::post('/complaint/verify-code', [\App\Http\Controllers\Frontend\ComplaintController::class, 'verifyCode'])->name('complaint.verifyCode');

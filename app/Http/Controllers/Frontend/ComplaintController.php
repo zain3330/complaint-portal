@@ -14,33 +14,40 @@ use Illuminate\Validation\ValidationException;
 class ComplaintController extends Controller
 {
     public function index(){
-          return view('frontend.complaint-registration');
+          return view('frontend.home');
     }
+    public function register(){
+        return view('frontend.registration-form');
+    }
+
 
     public function store(Request $request)
     {
-        // dd(123);
         try {
             $validatedData = $request->validate([
                 'name' => 'required|string|max:255',
                 'email' => 'required|email',
                 'department' => 'required|string',
-                'complaint_type' => 'required|string',
                 'details' => 'required|string'
             ]);
 
-            Complaint::create($validatedData);
+            // Create complaint and retrieve the created complaint ID
+            $complaint = Complaint::create($validatedData);
 
-            return redirect()->route('complaint.index')->with('success', 'Complaint registered successfully.');
+            // Return a JSON response with success message and complaint ID
+            return response()->json([
+                'success' => 'Complaint registered successfully.',
+                'complaint_id' => $complaint->id,
+            ]);
         } catch (ValidationException $e) {
             Log::error('Validation error during complaint registration: ', [
                 'errors' => $e->validator->errors(),
                 'input' => $request->all()
             ]);
 
-            return redirect()->route('complaint.index')
-                ->withErrors($e->validator)
-                ->withInput();
+            return response()->json([
+                'errors' => $e->validator->errors()
+            ], 422); // Return validation errors with a 422 status code
         } catch (\Exception $e) {
             Log::error('Error during complaint registration: ', [
                 'message' => $e->getMessage(),
@@ -48,9 +55,14 @@ class ComplaintController extends Controller
                 'input' => $request->all()
             ]);
 
-            return redirect()->route('complaint.index')->with('error', 'An error occurred while registering the complaint. Please try again.');
+            return response()->json([
+                'error' => 'An error occurred while registering the complaint. Please try again.'
+            ], 500); // Return generic error message with a 500 status code
         }
     }
+
+
+
     public function sendVerificationCode(Request $request)
     {
         $request->validate([
@@ -63,12 +75,12 @@ class ComplaintController extends Controller
         // Store the code in the session
         session(['verification_code' => $verificationCode]);
 
-        // Send the email
         try {
             Mail::to($request->email)->send(new \App\Mail\SendVerificationCode($verificationCode));
             return response()->json(['success' => true]);
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'error' => $e->getMessage()]);
+            \Log::error('Email sending failed: ' . $e->getMessage());
+            return response()->json(['success' => false, 'error' => 'Failed to send email. Please try again later.']);
         }
     }
 
