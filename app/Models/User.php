@@ -54,6 +54,11 @@ class User extends Authenticatable
     public function department(){
         return $this->hasOne(Department::class,'id','department_id');
     }
+    public function departments()
+    {
+        return $this->belongsToMany(Department::class);
+    }
+
     public function hasPermissionToRoute($route)
     {
         // Check if the user has an admin role

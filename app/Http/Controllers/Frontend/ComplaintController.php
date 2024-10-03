@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Frontend;
 
+use App\Models\Department;
 use Flasher\SweetAlert\Prime\SweetAlertInterface;
 use App\Http\Controllers\Controller;
 use App\Models\Complaint;
@@ -14,10 +15,40 @@ use Illuminate\Validation\ValidationException;
 class ComplaintController extends Controller
 {
     public function index(){
-          return view('frontend.home');
+        $departments = Department::all();
+          return view('frontend.home',compact('departments'));
     }
     public function register(){
         return view('frontend.registration-form');
+    }
+
+    public function statusForm(){
+        return view('frontend.complaint-status');
+    }
+    public function checkStatus(Request $request)
+    {
+        // Validate the input
+        $validatedData = $request->validate([
+            'complaintInfo' => 'required|string',
+        ]);
+
+        // Fetch complaints by complaint number or email
+        $complaints = Complaint::where('id', $validatedData['complaintInfo'])
+            ->orWhere('email', $validatedData['complaintInfo'])
+            ->get();
+
+        // Check if any complaints were found
+        if ($complaints->isEmpty()) {
+            return response()->json([
+                'errors' => ['complaintInfo' => ['No complaints found for the provided information.']],
+            ], 404);
+        }
+
+        // Return the complaints in JSON format
+        return response()->json([
+            'status' => 'success',
+            'complaints' => $complaints
+        ]);
     }
 
 
@@ -26,10 +57,17 @@ class ComplaintController extends Controller
         try {
             $validatedData = $request->validate([
                 'name' => 'required|string|max:255',
-                'email' => 'required|email',
+                'email' => [
+                    'required',
+                    'email',
+                    'regex:/^[a-zA-Z0-9._%+-]+@niu\.edu\.pk$/',
+                ],
                 'department' => 'required|string',
                 'details' => 'required|string'
+            ], [
+                'email.regex' => 'Only NIU institutional emails (@niu.edu.pk) are allowed.'
             ]);
+
 
             // Create complaint and retrieve the created complaint ID
             $complaint = Complaint::create($validatedData);

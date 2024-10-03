@@ -77,17 +77,19 @@
                                         @enderror
                                     </div>
                                     <div class="form-group">
-                                        <label for="department_id">Department*</label>
-                                        <select class="form-control @error('department_id') is-invalid @enderror" id="department_id" name="department_id" required>
-                                            <option value="">Select a Department</option>
+                                        <label for="department_id">Departments*</label>
+                                        <select class="form-control select2 @error('department_id') is-invalid @enderror" id="department_id" name="department_id[]" multiple="multiple" required>
                                             @foreach($departments as $department)
-                                                <option value="{{ $department->id }}" {{ old('department_id') == $department->id ? 'selected' : '' }}>{{ $department->name }}</option>
+                                                <option value="{{ $department->id }}"
+                                                        @if(is_array(old('department_id')) && in_array($department->id, old('department_id'))) selected @endif>
+                                                    {{ $department->name }}
+                                                </option>
                                             @endforeach
                                         </select>
                                         @error('department_id')
                                         <span class="invalid-feedback" role="alert">
-                                            <strong>{{ $message }}</strong>
-                                        </span>
+                <strong>{{ $message }}</strong>
+            </span>
                                         @enderror
                                     </div>
                                 </div>

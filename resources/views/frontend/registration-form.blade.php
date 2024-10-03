@@ -16,7 +16,7 @@
                                                 <img class="mx-auto mb-4" src="https://complaints.nadra.gov.pk/img/launch_complaint.png" alt="New Complaint">
                                                 <h3 class="text-2xl font-bold mb-2">New Complaint</h3>
                                                 <h5 class="text-gray-600 mb-5">Please provide your contact details and complaint message</h5>
-                                                <a class="inline-block bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded" href="/Track">Track Complaint Status</a>
+                                                <a class="inline-block bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded" href="{{route('complaint.statusForm')}}">Track Complaint Status</a>
                                             </div>
                                             <div class="w-full lg:w-2/3 px-4">
                                                 <h3 class="text-2xl font-bold mb-6">Enter Your Information Below</h3>
@@ -32,9 +32,9 @@
                                                     <label for="email" class="block text-gray-700 text-sm font-bold mb-2">Email</label>
                                                     <div class="flex">
                                                         <input type="email" id="email" name="email" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
-                                                        <button type="button" id="sendCode" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-3 rounded ml-2">Verify Email</button>
+{{--                                                        <button type="button" id="sendCode" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-3 rounded ml-2">Verify Email</button>--}}
                                                     </div>
-                                                    <small id="emailStatus" class="text-gray-600 mt-2 block">A verification code will be sent to this email.</small>
+{{--                                                    <small id="emailStatus" class="text-gray-600 mt-2 block">A verification code will be sent to this email.</small>--}}
                                                 </div>
 
                                                 <!-- Code Verification Field (Initially Hidden) -->
@@ -72,20 +72,15 @@
                                                     </button>
                                                 </div>
                                                 <div id="messageContainer"></div>
-
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </form>
-
-
                     </div>
                 </div>
             </div>
         </div>
     </div>
     </body>
-
-
 @endsection

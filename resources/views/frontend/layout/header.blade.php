@@ -10,6 +10,111 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function () {
+            $('#status-form').on('submit', function (e) {
+                e.preventDefault(); // Prevent the default form submission
+
+                // Clear previous messages
+                $('#statusMessageContainer').html('');
+
+                $.ajax({
+                    type: 'POST',
+                    url: $(this).attr('action'), // Use the form's action URL
+                    data: $(this).serialize(), // Serialize the form data
+                    success: function (response) {
+                        console.log(response); // For debugging
+
+                        // Check if there is at least one complaint
+                        if (response.complaints && response.complaints.length > 0) {
+                            let complaintList = '<div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4" role="alert">';
+
+                            // If only one complaint, handle it properly
+                            if (response.complaints.length === 1) {
+                                let complaint = response.complaints[0];
+                                let finalStatus = complaint.status === 'Forwarded' ? 'In Progress' : complaint.status;
+
+                                let statusMessage = ''; // We'll build the message here
+                                let attachment = 'attachments/' + complaint.attachment;
+                                if (finalStatus === 'Resolved') {
+                                    statusMessage = `Comments: ${complaint.comments || 'No comments available.'}<br>`;
+                                    if (complaint.attachment) {
+                                        statusMessage += `<a href="${attachment}" class="text-blue-500 underline" target="_blank">Download Attachment</a>`;
+                                    }
+                                } else {
+                                    statusMessage = `${complaint.comments || 'No additional information.'}`;
+                                }
+
+                                // Build the final HTML output
+                                complaintList += `
+                            <p class="font-bold">Complaint found:</p>
+                            <ul>
+                                <li>
+                                    <strong>Complaint ID: ${complaint.id}</strong><br>
+                                    <strong>Status:</strong> ${finalStatus}<br>
+                                    ${statusMessage}
+                                </li>
+                            </ul>
+                        `;
+                            } else {
+                                // Handle multiple complaints
+                                complaintList += '<p class="font-bold">Multiple complaints found:</p><ul>';
+
+                                response.complaints.forEach(function (complaint) {
+                                    let finalStatus = complaint.status === 'Forwarded' ? 'In Progress' : complaint.status;
+
+                                    let statusMessage = '';
+                                    let attachment = 'attachments/' + complaint.attachment;
+                                    if (finalStatus === 'Resolved') {
+                                        statusMessage = `Comments: ${complaint.comments || 'No comments available.'}<br>`;
+                                        if (complaint.attachment) {
+                                            statusMessage += `<a href="${attachment}" class="text-blue-500 underline" target="_blank">Download Attachment</a>`;
+                                        }
+                                    } else {
+                                        statusMessage = `${complaint.comments || 'No additional information.'}`;
+                                    }
+
+                                    complaintList += `
+                                <li>
+                                    <strong>Complaint ID: ${complaint.id}</strong><br>
+                                    <strong>Status:</strong> ${finalStatus}<br>
+                                    ${statusMessage}
+                                </li>
+                                <hr>
+                            `;
+                                });
+
+                                complaintList += '</ul>';
+                            }
+
+                            complaintList += '</div>';
+
+                            // Display the complaint(s) in the container
+                            $('#statusMessageContainer').html(complaintList);
+                        }
+                    },
+                    error: function (xhr) {
+                        // Handle the error response
+                        const errors = xhr.responseJSON.errors;
+                        let errorMessage = `
+                    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4" role="alert">
+                        <p class="font-bold">Please fix the following errors:</p>
+                        <ul>`;
+
+                        // Loop through the errors and display them
+                        $.each(errors, function (key, value) {
+                            errorMessage += `<li>${value[0]}</li>`;
+                        });
+                        errorMessage += '</ul></div>';
+
+                        // Display the error messages in the container
+                        $('#statusMessageContainer').html(errorMessage);
+                    }
+                });
+            });
+        });
+
+
+
+        $(document).ready(function () {
             // On Send Code click
             $('#sendCode').on('click', function () {
                 const email = $('#email').val();

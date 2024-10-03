@@ -16,17 +16,29 @@ class ComplaintController extends Controller
 {
     public function index(Request $request)
     {
+        // Get the current authenticated user's departments
+        $authUserDepartments = auth()->user()->departments->pluck('id')->toArray();
+
+        // Fetch the status from the request
         $status = $request->get('status');
+
+        // Get users except the authenticated one
         $users = User::where('id', '!=', auth()->id())->get();
 
+        // Fetch complaints that belong to one of the authenticated user's departments
+        $complaintsQuery = Complaint::whereIn('department', $authUserDepartments);
+
+        // Apply status filter if provided
         if ($status) {
-            $complaints = Complaint::where('status', $status)->get();
-        } else {
-            $complaints = Complaint::all();
+            $complaintsQuery->where('status', $status);
         }
+
+        // Get the filtered complaints
+        $complaints = $complaintsQuery->get();
 
         return view('admin.complaints.index', compact('complaints', 'users'));
     }
+
 
     public function show(Complaint $complaint)
     {
@@ -87,13 +99,25 @@ class ComplaintController extends Controller
             if ($request->has('comments')) {
                 $complaint->comments = $request->comments;
             }
-
             // Handle attachment upload if provided
             if ($request->hasFile('attachment')) {
+                // Validate the file type and size if needed
+                $request->validate([
+                    'attachment' => 'file|mimes:jpg,jpeg,png,pdf|max:2048', // Example validation rules
+                ]);
+
                 $file = $request->file('attachment');
                 $filename = time() . '_' . $file->getClientOriginalName();
-                $file->move(public_path('attachments'), $filename);
-                $complaint->attachment = $filename;
+
+                // Ensure the directory exists
+                $destinationPath = public_path('attachments');
+                if (!file_exists($destinationPath)) {
+                    mkdir($destinationPath, 0755, true); // Create directory if it doesn't exist
+                }
+
+                // Move the file
+                $file->move($destinationPath, $filename);
+                $complaint->attachment = $filename; // Store the filename in the database
             }
         }
 

@@ -20,5 +20,11 @@ class Department extends Model
 //    public function permissions(){
 //        return $this->belongsToMany(Permission::class,'permission_role');
 //    }
+    public function users()
+    {
+        return $this->belongsToMany(User::class);
+    }
+
+
 
 }

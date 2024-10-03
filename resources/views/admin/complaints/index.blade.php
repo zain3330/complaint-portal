@@ -44,7 +44,7 @@
                                         <th>Name</th>
                                         <th>Email</th>
                                         <th>Department</th>
-                                        <th>Complaint Type</th>
+{{--                                        <th>Complaint Type</th>--}}
                                         <th>Details</th>
                                         <th>Status</th>
                                         <th>Actions</th> <!-- Column for actions -->
@@ -57,7 +57,7 @@
                                             <td>{{ $complaint->name }}</td>
                                             <td>{{ $complaint->email }}</td>
                                             <td>{{ $complaint->department }}</td>
-                                            <td>{{ $complaint->complaint_type }}</td>
+{{--                                            <td>{{ $complaint->complaint_type }}</td>--}}
                                             <td>{{ Str::limit($complaint->details, 50) }}</td>
                                             <td id="status-{{ $complaint->id }}">{{ $complaint->status }}</td>
                                             <td>
@@ -188,16 +188,18 @@
                 }
             });
 
-            // Handle form submission
             $('#statusForm').on('submit', function(e) {
                 e.preventDefault();
 
-                var formData = $(this).serialize();
+                // Create a FormData object to handle form data including files
+                var formData = new FormData(this);
 
                 $.ajax({
                     url: '{{ route("complaints.updateStatus") }}',
                     method: 'POST',
                     data: formData,
+                    contentType: false, // Important for file uploads
+                    processData: false, // Important for file uploads
                     success: function(response) {
                         if (response.success) {
                             // Update the status in the table
@@ -214,6 +216,7 @@
                     }
                 });
             });
+
 
         });
         $('.forward-complaint').on('click', function() {

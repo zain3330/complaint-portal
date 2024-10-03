@@ -6,17 +6,17 @@
             min-height: 400px; /* Adjust the min-height as needed */
         }
 
-             /* Change the selected text color of the multi-select */
-        /* #department_id option:checked {*/
-        /*     color: blue; !* Change this to your desired color *!*/
-        /* }*/
-        /*.select2-selection__choice {*/
-        /*    color: white !important; !* Change to your desired color *!*/
-        /*    background-color: #0074f0!important; !* Optional: Change background color if needed *!*/
-        /*}*/
-        /*.select2-selection select2-selection--multiple {*/
-        /*    color: blue !important; !* Change to your desired color *!*/
-        /*}*/
+              Change the selected text color of the multi-select
+         #department_id option:checked {
+             color: blue; /* Change this to your desired color */
+         }
+        .select2-selection__choice {
+            color: white !important; /* Change to your desired color */
+            background-color: #0074f0!important; /* Optional: Change background color if needed */
+        }
+        .select2-selection select2-selection--multiple {
+            color: blue !important; /* Change to your desired color */
+        }
 
 
     </style>
@@ -24,7 +24,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Job Portal Website</title>
-    <link rel="icon" href="{{ asset('admin/images/fmlogo.png') }}" type="image/x-icon">
+    <link rel="icon" href="https://www.niu.edu.pk/wp-content/uploads/2020/09/favi.png" type="image/x-icon">
     <!-- Google Font: Source Sans Pro -->
     <link rel="stylesheet"
           href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
@@ -108,14 +108,14 @@
 <script src="{{url('admin/plugins/datatables-buttons/js/buttons.colVis.min.js')}}"></script>
 <!-- Select2 JS -->
 <script src="{{url('admin/plugins/select2/js/select2.full.min.js')}}"></script>
-{{--<script>--}}
-{{--    $(document).ready(function() {--}}
-{{--        $('#department_id').select2({--}}
-{{--            placeholder: "Select Departments",--}}
-{{--            allowClear: true--}}
-{{--        });--}}
-{{--    });--}}
-{{--</script>--}}
+<script>
+    $(document).ready(function() {
+        $('.select2').select2({
+            placeholder: 'Select Departments',
+            allowClear: true // Allows user to clear selections
+        });
+    });
+</script>
 
 
 <!-- Initialize DataTables -->

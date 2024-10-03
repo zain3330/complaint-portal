@@ -30,7 +30,8 @@ Route::get('/complaint-register', [\App\Http\Controllers\Frontend\ComplaintContr
 Route::post('/complaint/store', [\App\Http\Controllers\Frontend\ComplaintController::class, 'store'])->name('complaint.store');
 Route::post('/complaint/send-verification-code', [\App\Http\Controllers\Frontend\ComplaintController::class, 'sendVerificationCode'])->name('complaint.sendVerificationCode');
 Route::post('/complaint/verify-code', [\App\Http\Controllers\Frontend\ComplaintController::class, 'verifyCode'])->name('complaint.verifyCode');
-
+Route::get('/complaint-status-form', [\App\Http\Controllers\Frontend\ComplaintController::class, 'statusForm'])->name('complaint.statusForm');
+Route::post('/complaint-status-check', [\App\Http\Controllers\Frontend\ComplaintController::class, 'checkStatus'])->name('complaint.checkStatus');
 
 Route::middleware(['isAuthenticated'])->group(function () {
 Route::get('/dashboard', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');

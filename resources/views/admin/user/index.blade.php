@@ -53,7 +53,16 @@
                                             <td>{{ $user->name }}</td>
                                             <td>{{ $user->email }}</td>
                                             <td>{{ $user->role->name }}</td>
-                                            <td>{{ $user->department ? $user->department->name : 'N/A' }}</td>
+                                            <td>
+                                                @if($user->departments && $user->departments->count() > 0)
+                                                    @foreach($user->departments as $department)
+                                                        {{ $department->name }}{{ !$loop->last ? ',' : '' }} <!-- Separate with commas -->
+                                                    @endforeach
+                                                @else
+                                                    N/A
+                                                @endif
+                                            </td>
+
                                             <td>
 
                                                     <a href="{{ route('users.edit', $user->id) }}" class="btn btn-warning btn-sm">Edit</a>
