@@ -16,10 +16,11 @@ class ComplaintController extends Controller
 {
     public function index(){
         $departments = Department::all();
-          return view('frontend.home',compact('departments'));
+          return view('frontend.home');
     }
     public function register(){
-        return view('frontend.registration-form');
+        $departments = Department::all();
+        return view('frontend.registration-form',compact('departments'));
     }
 
     public function statusForm(){

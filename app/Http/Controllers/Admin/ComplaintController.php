@@ -16,17 +16,30 @@ class ComplaintController extends Controller
 {
     public function index(Request $request)
     {
-        // Get the current authenticated user's departments
-        $authUserDepartments = auth()->user()->departments->pluck('id')->toArray();
+        // Get the authenticated user
+        $authUser = auth()->user();
 
-        // Fetch the status from the request
+        // Fetch the status from the request (if provided)
         $status = $request->get('status');
 
-        // Get users except the authenticated one
-        $users = User::where('id', '!=', auth()->id())->get();
+        // Get users except the authenticated user
+        $users = User::where('id', '!=', $authUser->id)->get();
 
-        // Fetch complaints that belong to one of the authenticated user's departments
-        $complaintsQuery = Complaint::whereIn('department', $authUserDepartments);
+        // Get the role name of the authenticated user
+        $authUserRole = $authUser->role->name; // Assuming there's a 'role' relationship
+
+        // Initialize the complaints query
+        $complaintsQuery = Complaint::query();
+
+        // Check if the role is not "Super Admin" or "Admin"
+        if (!in_array($authUserRole, ['Super Admin', 'Admin'])) {
+            // Get the current user's department names via the pivot table
+            $authUserDepartments = $authUser->departments->pluck('name')->toArray();
+
+            // Fetch complaints that belong to the user's departments or have the resolver ID matching the user
+            $complaintsQuery->whereIn('department', $authUserDepartments)
+                ->orWhere('resolver_id', $authUser->id);
+        }
 
         // Apply status filter if provided
         if ($status) {
@@ -36,6 +49,7 @@ class ComplaintController extends Controller
         // Get the filtered complaints
         $complaints = $complaintsQuery->get();
 
+        // Return the view with the complaints and users
         return view('admin.complaints.index', compact('complaints', 'users'));
     }
 
@@ -150,17 +164,26 @@ class ComplaintController extends Controller
 
     public function getUsers()
     {
-        $users = User::where('id', '!=', auth()->id())->get(['id', 'name']);
+        $authUser = auth()->user();
+        $authUserRole = $authUser->role->name;
+        $query = User::where('id', '!=', $authUser->id); // Exclude the authenticated user
+        if (!in_array($authUserRole, ['Super Admin'])) {
+            $query->whereHas('role', function($q) {
+                $q->where('name', '!=', 'Super Admin');
+            });
+        }
+        $users = $query->get(['id', 'name']);
+
         return response()->json([
             'success' => true,
             'users' => $users
         ]);
     }
+
     public function forwardComplaint(Request $request)
     {
         Log::info('Forwarding complaint:', $request->all());
 
-        // Find the complaint
         $complaint = Complaint::find($request->complaint_id);
 
         if (!$complaint) {
@@ -169,13 +192,10 @@ class ComplaintController extends Controller
                 'message' => 'Complaint not found.',
             ]);
         }
-
-        // Validate the request
         $request->validate([
-            'resolver_id' => 'required|exists:users,id', // Ensure resolver_id is provided and exists
+            'resolver_id' => 'required|exists:users,id',
         ]);
 
-        // Check if the complaint has already been forwarded or is resolved
         if ($complaint->status == 'Forwarded') {
             $currentResolver = $complaint->forwardTo ? $complaint->forwardTo->name : 'Unknown';
 
@@ -192,10 +212,8 @@ class ComplaintController extends Controller
             ]);
         }
 
-        // Find the new resolver
         $newResolver = User::findOrFail($request->resolver_id);
 
-        // Add to forward history
         $forwardHistory = json_decode($complaint->forward_history, true) ?? [];
         $forwardHistory[] = [
             'from' => auth()->user()->name,

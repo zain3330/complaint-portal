@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Your Account Has Been Created</title>
+    <title>Your Account Has Been Edited</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -32,19 +32,23 @@
 <body>
 <div class="container">
     <div class="header">
-        <h1>Welcome to Our Complaint Portal</h1>
+        <h1>Your Account Has Been Edited</h1>
     </div>
     <div class="content">
         <p>Dear {{ $details['name'] }},</p>
-        <p>Your account has been successfully created. Below are your login details:</p>
+        <p>Your account has been successfully updated. Below are your updated login details:</p>
         <p><strong>Email:</strong> {{ $details['email'] }}</p>
-        <p><strong>Password:</strong> {{ $details['password'] }}</p>
+        @if(isset($details['password']))
+            <p><strong>Password:</strong> {{ $details['password'] }}</p>
+        @else
+            <p><strong>Password:</strong> Password remains unchanged.</p>
+        @endif
         <p>Please keep this information safe.</p>
         <p>Best regards,</p>
         <p>The Job Portal Team</p>
     </div>
     <div class="footer">
-        <p>&copy; {{ date('Y') }} Comptaint Portal. All rights reserved.</p>
+        <p>&copy; {{ date('Y') }} Complaint Portal. All rights reserved.</p>
     </div>
 </div>
 </body>

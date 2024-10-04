@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\User;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\SendUserEditedEmail;
 use App\Mail\CreateUserMail;
 use App\Models\Department;
 use App\Models\Role;
@@ -17,14 +18,21 @@ class UserController extends Controller
 {
     public function index()
     {
-        // Eager load 'role' and 'departments'
-        $users = User::with('role', 'departments')
-            ->where('role_id', '!=', 1) // Exclude role_id 1
-            ->where('id', '=', auth()->user()->id) // Exclude current user
-            ->get();
+        $authUserRole = auth()->user()->role->name; // Adjust based on your role relationship
+        $authUserId = auth()->user()->id;
+
+        $usersQuery = User::with('role', 'departments');
+
+        if (in_array($authUserRole, ['Super Admin', 'Admin'])) {
+            $usersQuery->where('role_id', '!=', 1);
+        } else {
+            $usersQuery->where('id', $authUserId);
+        }
+        $users = $usersQuery->get();
 
         return view('admin.user.index', compact('users'));
     }
+
 
     public function create()
     {
@@ -90,10 +98,10 @@ class UserController extends Controller
         // Validate the form data
         $validatedData = $request->validate([
             'name' => 'required',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id, // Ensures unique email except for the current user
-            'password' => 'nullable|min:6', // Password is not required on update
+            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+            'password' => 'nullable|min:6',
             'role_id' => 'required',
-            'department_id' => 'required|array', // Department ID should be an array
+            'department_id' => 'required|array',
         ]);
         try {
 
@@ -107,11 +115,18 @@ class UserController extends Controller
                 'name' => $validatedData['name'],
                 'email' => $validatedData['email'],
                 'role_id' => $validatedData['role_id'],
-                // Only update the password if it's provided
                 'password' => isset($validatedData['password']) ? $validatedData['password'] : $user->password,
             ]);
 
             $user->departments()->sync($validatedData['department_id']);
+            $details = [
+                'name' => $validatedData['name'],
+                'email' => $validatedData['email'],
+                'password' => $request->filled('password') ? $request->input('password') : null
+            ];
+
+            SendUserEditedEmail::dispatch($details);
+
 
             return redirect()->route('users.index')->with('success', 'User Updated Successfully.');
         } catch (ValidationException $e) {

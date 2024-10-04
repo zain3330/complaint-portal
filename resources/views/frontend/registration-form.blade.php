@@ -48,16 +48,17 @@
 
                                                 <!-- Department -->
                                                 <div class="mb-4">
-                                                    <label for="department" class="block text-gray-700 text-sm font-bold mb-2">Department / <span lang="ur">محکمہ</span></label>
+                                                    <label for="department" class="block text-gray-700 text-sm font-bold mb-2">
+                                                        Department / <span lang="ur">محکمہ</span>
+                                                    </label>
                                                     <select id="department" name="department" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
                                                         <option value="" disabled selected>Select Department</option>
-                                                        <option value="HR">Human Resources</option>
-                                                        <option value="IT">Information Technology</option>
-                                                        <option value="Finance">Finance</option>
-                                                        <option value="Marketing">Marketing</option>
-                                                        <option value="Operations">Operations</option>
+                                                        @foreach($departments as $department)
+                                                            <option value="{{ $department->name }}">{{ $department->name }}</option>
+                                                        @endforeach
                                                     </select>
                                                 </div>
+
 
                                                 <!-- Complaint Detail -->
                                                 <div class="mb-4">
