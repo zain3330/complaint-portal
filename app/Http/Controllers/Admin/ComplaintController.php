@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Jobs\SendComplaintResolvedEmail;
 use App\Models\User;
 use Flasher\SweetAlert\Prime\SweetAlertInterface;
 use App\Http\Controllers\Controller;
@@ -16,48 +17,47 @@ class ComplaintController extends Controller
 {
     public function index(Request $request)
     {
-        // Get the authenticated user
+
         $authUser = auth()->user();
-
-        // Fetch the status from the request (if provided)
         $status = $request->get('status');
-
-        // Get users except the authenticated user
         $users = User::where('id', '!=', $authUser->id)->get();
+        $authUserRole = $authUser->role->name;
 
-        // Get the role name of the authenticated user
-        $authUserRole = $authUser->role->name; // Assuming there's a 'role' relationship
-
-        // Initialize the complaints query
         $complaintsQuery = Complaint::query();
 
-        // Check if the role is not "Super Admin" or "Admin"
         if (!in_array($authUserRole, ['Super Admin', 'Admin'])) {
-            // Get the current user's department names via the pivot table
+
             $authUserDepartments = $authUser->departments->pluck('name')->toArray();
-
-            // Fetch complaints that belong to the user's departments or have the resolver ID matching the user
-            $complaintsQuery->whereIn('department', $authUserDepartments)
-                ->orWhere('resolver_id', $authUser->id);
+            $complaintsQuery->where(function($query) use ($authUserDepartments, $authUser) {
+                $query->whereIn('department', $authUserDepartments)
+                    ->orWhere('resolver_id', $authUser->id);
+            });
         }
-
-        // Apply status filter if provided
         if ($status) {
             $complaintsQuery->where('status', $status);
         }
-
-        // Get the filtered complaints
         $complaints = $complaintsQuery->get();
 
-        // Return the view with the complaints and users
         return view('admin.complaints.index', compact('complaints', 'users'));
     }
 
 
     public function show(Complaint $complaint)
     {
-        return view('admin.complaints.view', compact('complaint'));
+        // Fetch all users
+        $users = User::whereHas('role', function($query) {
+            // Only fetch users with 'Super Admin', 'Admin', or users who are linked to the same department
+            $query->whereIn('name', ['Super Admin', 'Admin']);
+        })->orWhereHas('departments', function($query) use ($complaint) {
+            // Fetch users associated with the same department as the complaint
+            $query->where('name', $complaint->department);
+        })->orWhere('id', $complaint->resolver_id) // Include the resolver if they are set
+        ->get();
+
+        // Return the view with the complaint and users who can view it
+        return view('admin.complaints.view', compact('complaint', 'users'));
     }
+
 
     public function updateStatus(Request $request)
     {
@@ -83,16 +83,18 @@ class ComplaintController extends Controller
 
         // Role-based permission: Only Admin or Super Admin can update "Forwarded" to "In Progress"
         if ($complaint->status == 'Forwarded') {
-            if (!auth()->user()->hasRole(['Super Admin', 'Admin'])) {
+            $authUser = auth()->user();
+            $authUserRole = $authUser->role->name;
+
+            if (!in_array($authUserRole, ['Super Admin', 'Admin'])) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Only Admin or Super Admin can update a forwarded complaint to "In Progress".',
                 ]);
             }
-
-            // Reset resolver_id to null when changing status from "Forwarded" to "In Progress"
             $complaint->resolver_id = null;
         }
+
 
         // Check if complaint is already in progress
         if ($complaint->status == 'In Progress' && $request->status == 'In Progress') {
@@ -116,9 +118,17 @@ class ComplaintController extends Controller
             // Handle attachment upload if provided
             if ($request->hasFile('attachment')) {
                 // Validate the file type and size if needed
-                $request->validate([
-                    'attachment' => 'file|mimes:jpg,jpeg,png,pdf|max:2048', // Example validation rules
-                ]);
+                try {
+                    // Validate the attachment
+                    $request->validate([
+                        'attachment' => 'file|mimes:jpg,jpeg,png,pdf|max:2048',
+                    ]);
+                } catch (\Illuminate\Validation\ValidationException $e) {
+                    return response()->json([
+                        'success' => false,
+                        'errors' => $e->validator->errors(), // Return validation errors
+                    ]);
+                }
 
                 $file = $request->file('attachment');
                 $filename = time() . '_' . $file->getClientOriginalName();
@@ -133,11 +143,24 @@ class ComplaintController extends Controller
                 $file->move($destinationPath, $filename);
                 $complaint->attachment = $filename; // Store the filename in the database
             }
+
+            // Save the updated complaint
+            $complaint->save();
+
+            // Prepare email details
+            $details = [
+                'name' => $complaint->name,
+                'email' => $complaint->email,
+                'complaint_id' => $complaint->id,
+                'department' => $complaint->department,
+                'comments' => $complaint->comments,
+                'attachment' => $complaint->attachment ? url('attachments/' . $complaint->attachment) : null, // Provide URL for attachment
+            ];
+
+            // Dispatch the email job
+            SendComplaintResolvedEmail::dispatch($details);
         }
-
-        // Save the updated complaint
         $complaint->save();
-
         return response()->json([
             'success' => true,
             'complaint_id' => $complaint->id,
@@ -145,7 +168,6 @@ class ComplaintController extends Controller
             'message' => 'Complaint status updated successfully.'
         ]);
     }
-
 
 
 //    public function filterComplaints(Request $request)
@@ -167,9 +189,10 @@ class ComplaintController extends Controller
         $authUser = auth()->user();
         $authUserRole = $authUser->role->name;
         $query = User::where('id', '!=', $authUser->id); // Exclude the authenticated user
-        if (!in_array($authUserRole, ['Super Admin'])) {
+        if (!in_array($authUserRole, ['Super Admin','Admin'])) {
             $query->whereHas('role', function($q) {
-                $q->where('name', '!=', 'Super Admin');
+                $q->whereNotIn('name', ['Super Admin', 'Admin']);
+
             });
         }
         $users = $query->get(['id', 'name']);

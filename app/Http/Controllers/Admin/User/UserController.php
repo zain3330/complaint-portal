@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\User;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\SendUserCreatedEmail;
 use App\Jobs\SendUserEditedEmail;
 use App\Mail\CreateUserMail;
 use App\Models\Department;
@@ -76,7 +77,7 @@ class UserController extends Controller
             ];
 
             // Send email
-            Mail::to($user->email)->send(new CreateUserMail($details));
+            SendUserCreatedEmail::dispatch($details);
 
             // Redirect back with success message
             return redirect()->route('users.index')->with('success', 'User Created Successfully.');

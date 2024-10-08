@@ -8,7 +8,7 @@
 
             <div class="flex flex-col sm:flex-row ">
                 <a href="{{route('complaint.register')}}" class="bg-green-600 text-white font-bold py-3 px-6 rounded-lg mb-4 sm:mb-0 sm:mr-4 hover:bg-green-900 transition duration-300">Register Complaint</a>
-                <a href="" class="bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-900 transition duration-300">Complaint Status</a>
+                <a href="{{route('complaint.statusForm')}}" class="bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-900 transition duration-300">Complaint Status</a>
             </div>
         </div>
         <div class="md:w-1/2 mt-8 md:mt-0">

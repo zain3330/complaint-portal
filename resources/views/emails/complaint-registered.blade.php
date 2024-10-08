@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Account Has Been Edited</title>
+    <title>Complaint Registered Successfully</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -65,27 +65,34 @@
     </style>
 </head>
 <body>
+
 <div class="container">
     <div class="header">
         <img src="https://www.niu.edu.pk/wp-content/uploads/2024/09/NIU-Logo-h-w.png" alt="NIU Care Logo">
-        <h1>Your Account Has Been Edited</h1>
+        <h1>Complaint Registered Successfully</h1>
     </div>
+
     <div class="content">
         <p>Dear {{ $details['name'] }},</p>
-        <p>Your account has been successfully updated. Below are your updated login details:</p>
-        <p><strong>Email:</strong> {{ $details['email'] }}</p>
-        @if(isset($details['password']))
-            <p><strong>Password:</strong> {{ $details['password'] }}</p>
-        @else
-            <p><strong>Password:</strong> Password remains unchanged.</p>
-        @endif
-        <p>Please keep this information safe.</p>
+        <p>Your complaint has been successfully registered with the following details:</p>
+        <p><strong>Complaint ID:</strong> {{ $details['complaint_id'] }}</p>
+        <p><strong>Department:</strong> {{ $details['department'] }}</p>
+        <p><strong>Details:</strong> {{ $details['details'] }}</p>
+        <p>We are reviewing your complaint and will get back to you shortly.</p>
+
+{{--        <p>You can check the status of your complaint using the button below:</p>--}}
+{{--        <a href="{{ route('complaint.statusForm') }}" class="btn btn-status">Check Complaint Status</a>--}}
+
+        <p>For more assistance, feel free to contact our support team.</p>
+
         <p>Best regards,</p>
         <p>The NIU Complaint Portal Team</p>
     </div>
+
     <div class="footer">
         <p>&copy; {{ date('Y') }} NIU Complaint Portal. All rights reserved.</p>
     </div>
 </div>
+
 </body>
 </html>

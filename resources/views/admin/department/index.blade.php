@@ -20,7 +20,12 @@
                     <div class="col-12">
                         <div class="card">  <div class="card-header d-flex justify-content-between align-items-center">
                                 <h3 class="card-title">Departments</h3>
+                                @php
+                                    $authUserRole = auth()->user()->role ? auth()->user()->role->name : null;
+                                @endphp
+                                @if(in_array($authUserRole, ['Super Admin', 'Admin']))
                                 <a href="{{ route('create-department') }}" class="btn btn-success ml-auto">Add Department</a>
+                                @endif
                             </div>
                             <div class="card-body">
                                 @if (session('error'))
@@ -37,7 +42,7 @@
                                 <table id="jobs-table" class="table table-bordered table-striped dataTable dtr-inline" aria-describedby="example1_info">
                                     <thead>
                                     <tr>
-                                        <th>Category</th>
+                                        <th>Name</th>
                                         <th>Actions</th> <!-- New column for action buttons -->
                                     </tr>
                                     </thead>
@@ -47,11 +52,21 @@
                                             <td>{{ $department->name }}</td>
                                             <td>
 {{--                                                <a href="{{ route('jobs.show', $job->id) }}" class="btn btn-primary btn-sm">View</a>--}}
+                                                @php
+                                                    $authUserRole = auth()->user()->role ? auth()->user()->role->name : null;
+                                                @endphp
+                                                @if(in_array($authUserRole, ['Super Admin', 'Admin']))
                                                 <a href="{{ route('department.edit', $department->id) }}" class="btn btn-warning btn-sm">Edit</a>
+                                                @endif
                                                 <form action="{{ route('department.destroy', $department->id) }}" method="POST" style="display:inline;">
                                                     @csrf
                                                     @method('DELETE')
+                                                    @php
+                                                        $authUserRole = auth()->user()->role ? auth()->user()->role->name : null;
+                                                    @endphp
+                                                    @if(in_array($authUserRole, ['Super Admin', 'Admin']))
                                                     <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                                    @endif
                                                 </form>
                                             </td>
                                         </tr>

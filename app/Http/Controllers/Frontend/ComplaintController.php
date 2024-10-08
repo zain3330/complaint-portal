@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Frontend;
 
+use App\Jobs\SendComplaintRegisteredEmail;
 use App\Models\Department;
 use Flasher\SweetAlert\Prime\SweetAlertInterface;
 use App\Http\Controllers\Controller;
@@ -72,6 +73,18 @@ class ComplaintController extends Controller
 
             // Create complaint and retrieve the created complaint ID
             $complaint = Complaint::create($validatedData);
+
+            // Prepare email details
+            $emailDetails = [
+                'name' => $validatedData['name'],
+                'email' => $validatedData['email'],
+                'department' => $validatedData['department'],
+                'details' => $validatedData['details'],
+                'complaint_id' => $complaint->id,
+            ];
+
+            // Dispatch the job to send an email
+            SendComplaintRegisteredEmail::dispatch($emailDetails);
 
             // Return a JSON response with success message and complaint ID
             return response()->json([

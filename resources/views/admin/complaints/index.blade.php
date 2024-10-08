@@ -112,6 +112,7 @@
                         <div class="form-group" id="attachmentSection" style="display: none;">
                             <label for="attachment">Attachment (optional)</label>
                             <input type="file" name="attachment" class="form-control" id="attachment">
+                            <div class="error-message"></div>
                         </div>
 
                         <button type="submit" class="btn btn-primary">Save changes</button>
@@ -152,28 +153,8 @@
 @section('script')
     <script>
         $(document).ready(function() {
-            $('.forward-complaint').on('click', function() {
-                var complaintId = $(this).data('id'); // Get complaint ID from button's data-id attribute
-                $('#forwardComplaintId').val(complaintId); // Set the hidden input value in the modal
-                $('#forwardModal').modal('show'); // Open the modal
-            });
-            $('#statusSelect').on('change', function() {
-                if ($(this).val() === 'Resolved') {
-                    $('#commentsSection').show();    // Show comments section
-                    $('#attachmentSection').show();  // Show attachment section
-                } else {
-                    $('#commentsSection').hide();    // Hide comments section
-                    $('#attachmentSection').hide();  // Hide attachment section
-                }
-            });
-            // Initialize DataTable
-            $('#complaints-table').DataTable({
-                dom: 'Bfrtip',
-                buttons: []
-            });
-
-            // Open modal on 'Change Status' button click
-            $('.change-status').on('click', function() {
+            // Event delegation for dynamically loaded "Change Status" buttons
+            $(document).on('click', '.change-status', function() {
                 var complaintId = $(this).data('id');
                 $('#complaintId').val(complaintId);
                 $('#statusModal').modal('show');
@@ -182,9 +163,11 @@
             // Show/hide resolved by field based on status
             $('#statusSelect').on('change', function() {
                 if ($(this).val() === 'Resolved') {
-                    $('#resolvedBySection').show();
+                    $('#commentsSection').show();    // Show comments section
+                    $('#attachmentSection').show();  // Show attachment section
                 } else {
-                    $('#resolvedBySection').hide();
+                    $('#commentsSection').hide();    // Hide comments section
+                    $('#attachmentSection').hide();  // Hide attachment section
                 }
             });
 
@@ -209,16 +192,34 @@
                         } else {
                             // Show the message if the complaint is already resolved or forwarded
                             alert(response.message);
+                            $.each(response.errors, function(field, messages) {
+                                messages.forEach(function(message) {
+                                    $('#' + field + 'Section').append('<div class="error-message text-danger">' + message + '</div>');
+                                });
+                            });
                         }
                     },
-                    error: function() {
-                        alert('An error occurred while updating the status.');
+                    error: function(xhr) {
+                        // Log the full error response for debugging
+                        console.error('AJAX Error:', xhr);
+
+                        // Show a more detailed alert based on the response
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            alert('Error: ' + xhr.responseJSON.message);
+                        } else {
+                            alert('An error occurred while updating the status.');
+                        }
                     }
                 });
             });
 
-
+            // Initialize DataTable
+            $('#complaints-table').DataTable({
+                dom: 'Bfrtip',
+                buttons: []
+            });
         });
+
         $('.forward-complaint').on('click', function() {
             var complaintId = $(this).data('id');
             $('#complaintId').val(complaintId);

@@ -122,7 +122,21 @@
                                         <p>This complaint is currently being worked on. Please check back later for updates.</p>
                                     </div>
                                 @endif
-
+                                <!-- Users Who Can See This Complaint Section -->
+                                <div class="bordered">
+                                    <h4>Users Who Can View This Complaint</h4>
+                                    <ul>
+                                        @php
+                                            // Assuming you passed the $users variable from the controller which holds users who can view
+                                            $authUserDepartments = auth()->user()->departments->pluck('name')->toArray();
+                                        @endphp
+                                        @foreach($users as $user)
+                                            @if(in_array($user->role->name, ['Super Admin', 'Admin']) || in_array($complaint->department, $user->departments->pluck('name')->toArray()) || $complaint->resolver_id === $user->id)
+                                                <li>{{ $user->name }} </li>
+                                            @endif
+                                        @endforeach
+                                    </ul>
+                                </div>
                             </div>
                         </div>
                     </div>
