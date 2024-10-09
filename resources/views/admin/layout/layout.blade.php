@@ -42,7 +42,9 @@
     <link rel="stylesheet" href="{{url('admin/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css')}}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
-@yield('css')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    @yield('css')
 
 </head>
 <body class="hold-transition dark-mode sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed">
@@ -109,6 +111,25 @@
 <!-- Select2 JS -->
 <script src="{{url('admin/plugins/select2/js/select2.full.min.js')}}"></script>
 <script>
+    @if (session('success'))
+    Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: "{{ session('success') }}",
+        timer: 3000,
+        showConfirmButton: false
+    });
+    @endif
+
+    @if (session('error'))
+    Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: "{{ session('error') }}",
+        timer: 3000,
+        showConfirmButton: false
+    });
+    @endif
     $(document).ready(function() {
         $('.select2').select2({
             placeholder: 'Select Departments',

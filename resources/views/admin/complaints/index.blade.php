@@ -188,10 +188,22 @@
                             // Update the status in the table
                             $('#status-' + response.complaint_id).text(response.status);
                             $('#statusModal').modal('hide');
-                            alert(response.message);
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success',
+                                text: response.message,
+                                timer: 4000,
+                                showConfirmButton: false
+                            });
                         } else {
                             // Show the message if the complaint is already resolved or forwarded
-                            alert(response.message);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: response.message,
+                                timer: 4000,
+                                showConfirmButton: false
+                            });
                             $.each(response.errors, function(field, messages) {
                                 messages.forEach(function(message) {
                                     $('#' + field + 'Section').append('<div class="error-message text-danger">' + message + '</div>');
@@ -218,11 +230,58 @@
                 dom: 'Bfrtip',
                 buttons: []
             });
+            $('#forwardForm').submit(function (e) {
+                e.preventDefault(); // Prevent default form submission
+
+                var formData = new FormData(this);
+
+                $.ajax({
+                    url: "{{ route('complaints.forward') }}",
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function (response) {
+                        if (response.success) {
+                            var complaintId = $('#forwardComplaintId').val();
+                            $('#status-' + complaintId).text('Forwarded');
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success',
+                                text: response.message,
+                                timer: 4000,
+                                showConfirmButton: false
+                            });
+
+                            $('#forwardModal').modal('hide');
+
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: response.message,
+                                timer: 4000,
+                                showConfirmButton: false
+                            });
+                        }
+                    },
+                    error: function (xhr) {
+                        // Log the actual error response for debugging
+                        console.log(xhr.responseText);
+                        try {
+                            var jsonResponse = JSON.parse(xhr.responseText);
+                            alert(jsonResponse.message || 'An error occurred. Please try again.'); // Show specific error message
+                        } catch (e) {
+                            alert('An unexpected error occurred. Please try again.'); // Fallback for non-JSON errors
+                        }
+                    }
+                });
+            });
         });
 
         $('.forward-complaint').on('click', function() {
             var complaintId = $(this).data('id');
-            $('#complaintId').val(complaintId);
+            $('#forwardComplaintId').val(complaintId)
 
             // Fetch and populate user list via AJAX
             $.ajax({
@@ -242,41 +301,6 @@
             });
         });
         // Forward request
-        $('#forwardForm').submit(function (e) {
-            e.preventDefault(); // Prevent default form submission
-
-            var formData = new FormData(this);
-
-            $.ajax({
-                url: "{{ route('complaints.forward') }}",
-                type: 'POST',
-                data: formData,
-                processData: false,
-                contentType: false,
-                success: function (response) {
-                    if (response.success) {
-                        var complaintId = $('#forwardComplaintId').val();
-                        $('#status-' + complaintId).text('Forwarded');
-                        alert(response.message);
-                        $('#forwardModal').modal('hide');
-
-                    } else {
-                        alert(response.message); // Show error message
-                    }
-                },
-                error: function (xhr) {
-                    // Log the actual error response for debugging
-                    console.log(xhr.responseText);
-                    try {
-                        var jsonResponse = JSON.parse(xhr.responseText);
-                        alert(jsonResponse.message || 'An error occurred. Please try again.'); // Show specific error message
-                    } catch (e) {
-                        alert('An unexpected error occurred. Please try again.'); // Fallback for non-JSON errors
-                    }
-                }
-            });
-        });
-
 
     </script>
 @endsection
