@@ -21,14 +21,13 @@ class UserController extends Controller
     {
         $authUserRole = auth()->user()->role->name; // Adjust based on your role relationship
         $authUserId = auth()->user()->id;
-
         $usersQuery = User::with('role', 'departments');
 
         if (in_array($authUserRole, ['Super Admin', 'Admin'])) {
             $usersQuery->where('role_id', '!=', 1);
         } else {
-            $usersQuery->where('id', $authUserId);
-        }
+            $usersQuery->where('id', $authUserId)
+                ->orWhere('created_by', $authUserId);    }
         $users = $usersQuery->get();
 
         return view('admin.user.index', compact('users'));
@@ -37,7 +36,7 @@ class UserController extends Controller
 
     public function create()
     {
-        $roles = Role::where('name','!=','Super Admin')->get();
+        $roles = Role::whereNotIn('name', ['Super Admin', 'Admin'])->get();
         $departments = Department::all();
         return view('admin.user.create',compact('roles','departments'));
     }
@@ -63,6 +62,7 @@ class UserController extends Controller
                 'email' => $validatedData['email'],
                 'password' => $validatedData['password'],
                 'role_id' => $validatedData['role_id'],
+                'created_by' => auth()->user()->id,
             ]);
 
             // Sync multiple departments to the pivot table

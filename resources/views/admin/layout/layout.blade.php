@@ -111,25 +111,7 @@
 <!-- Select2 JS -->
 <script src="{{url('admin/plugins/select2/js/select2.full.min.js')}}"></script>
 <script>
-    @if (session('success'))
-    Swal.fire({
-        icon: 'success',
-        title: 'Success',
-        text: "{{ session('success') }}",
-        timer: 3000,
-        showConfirmButton: false
-    });
-    @endif
 
-    @if (session('error'))
-    Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: "{{ session('error') }}",
-        timer: 3000,
-        showConfirmButton: false
-    });
-    @endif
     $(document).ready(function() {
         $('.select2').select2({
             placeholder: 'Select Departments',

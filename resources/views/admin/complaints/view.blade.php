@@ -57,8 +57,6 @@
                                         <dt>Department:</dt>
                                         <dd>{{ $complaint->department }}</dd>
 
-                                        <dt>Complaint Type:</dt>
-                                        <dd>{{ $complaint->complaint_type }}</dd>
 
                                         <dt>Status:</dt>
                                         <dd>{{ $complaint->status }}</dd>
