@@ -28,9 +28,10 @@
 
                                             <!-- Submit Button -->
                                             <div class="mb-6">
-                                                <button type="submit" id="submitComplaint" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-30">
+                                                <button type="submit" id="submitComplaint" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline sm:w-full md:w-[8rem] lg:w-[8rem] xl:w-40">
                                                     Track Complaint
                                                 </button>
+
                                             </div>
 
                                             <!-- Status Message Container -->
